@@ -1,6 +1,7 @@
 //import liraries
 import React, { Component, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, ImageBackground} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, ImageBackground, PermissionsAndroid } from 'react-native';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker'; // Migration from 2.x.x to 3.x.x => showImagePicker API is removed.
 
 // create a component
 const Product3 = ({ navigation }) => {
@@ -32,7 +33,7 @@ const Product3 = ({ navigation }) => {
             alert("Minimal Jenis, Bahan, Size dan Jumlah terisi")
         } else {
             const data = {
-                nama:"MMT/SPANDUK",
+                nama: "MMT/SPANDUK",
                 jenis: jenis,
                 bahan: bahan,
                 size: size,
@@ -45,9 +46,67 @@ const Product3 = ({ navigation }) => {
             navigation.navigate("Checkout", { data: data })
 
             // Menyimpan ke async storage pemyimpan dimemory hp
-            
+
         }
     }
+
+    const selectPhotoTapped = () => {
+        var options = {
+            title: 'Select Image',
+            customButtons: [
+                {
+                    name: 'customOptionKey',
+                    title: 'Choose Photo from Custom Option'
+                },
+            ],
+            storageOptions: {
+                skipBackup: true,
+                path: 'images',
+            },
+        };
+
+        launchImageLibrary(options, (response) => { // Use launchImageLibrary to open image gallery
+            console.log('Response = ', response);
+
+            if (response.didCancel) {
+                console.log('User cancelled image picker');
+            } else if (response.error) {
+                console.log('ImagePicker Error: ', response.error);
+            } else if (response.customButton) {
+                console.log('User tapped custom button: ', response.customButton);
+            } else {
+                const source = { uri: response.assets[0].uri };
+
+                // You can also display the image using data:
+                // const source = { uri: 'data:image/jpeg;base64,' + response.data };
+                setImage(source.uri)
+            }
+        });
+    }
+
+    const requestCameraPermission = async () => {
+        try {
+            const granted = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.CAMERA,
+                {
+                    title: "App Camera Permission",
+                    message: "App needs access to your camera ",
+                    buttonNeutral: "Ask Me Later",
+                    buttonNegative: "Cancel",
+                    buttonPositive: "OK"
+                }
+            );
+            if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                console.log("Camera permission given");
+                selectPhotoTapped()
+            } else {
+                console.log("Camera permission denied");
+            }
+        } catch (err) {
+            console.warn(err);
+        }
+    };
+
 
     return (
         <View style={styles.container}>
@@ -56,121 +115,130 @@ const Product3 = ({ navigation }) => {
                 style={{ flex: 1, }}
                 resizeMode="cover"
             >
-            <TouchableOpacity onPress={() => navigation.goBack()} style={{
-                flexDirection: "row",
-                height: 50,
-                alignItems: "center",
-                width: "100%"
-            }}>
-                <Image
-                    source={require("../assets/left.png")}
-                    style={{
-                        height: 50,
-                        width: 50,
-                        resizeMode: "contain",
-                    }}
-                />
-                <Text style={{ color: "#000", fontSize: 18, fontWeight: "bold", textAlign: "center" }}>MMT/SPANDUK</Text>
-            </TouchableOpacity>
-            <View style={{ margin: 10, marginLeft: 25 }}>
-                <Text style={{ color: "#000", fontSize: 20, fontWeight: "bold" }}>Pilihan Cetak Sisi</Text>
-                <TouchableOpacity style={{ flexDirection: "row" }} onPress={() => {
-                    setMata(prev => !prev)
-                    setJenis("Print Outdor")
+                <TouchableOpacity onPress={() => navigation.goBack()} style={{
+                    flexDirection: "row",
+                    height: 50,
+                    alignItems: "center",
+                    width: "100%"
                 }}>
-                    {mata == false ? <Image source={require("../assets/false.png")} style={{ height: 20, width: 20, marginRight: 10 }} /> : <Image source={require("../assets/true.png")} style={{ height: 20, width: 20, marginRight: 10 }} />}
-                    <Text>Print Outdor</Text>
+                    <Image
+                        source={require("../assets/left.png")}
+                        style={{
+                            height: 50,
+                            width: 50,
+                            resizeMode: "contain",
+                        }}
+                    />
+                    <Text style={{ color: "#000", fontSize: 18, fontWeight: "bold", textAlign: "center" }}>MMT/SPANDUK</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={{ flexDirection: "row" }} onPress={() => {
-                    setJepit(prev => !prev)
-                    setJenis("Print Indoor")
-                }}>
-                    {jepit == false ? <Image source={require("../assets/false.png")} style={{ height: 20, width: 20, marginRight: 10 }} /> : <Image source={require("../assets/true.png")} style={{ height: 20, width: 20, marginRight: 10 }} />}
-                    <Text>Print Indoor</Text>
-                </TouchableOpacity>
-            </View>
-            <View style={{ margin: 10, marginLeft: 25 }}>
-                <Text style={{ color: "#000", fontSize: 20, fontWeight: "bold" }}>Pilihan Bahan</Text>
-                <TouchableOpacity style={{ flexDirection: "row" }} onPress={() => {
-                    setCarton(prev => !prev)
-                    setBahan("Flexy Standar")
-                }}>
-                    {carton == false ? <Image source={require("../assets/false.png")} style={{ height: 20, width: 20, marginRight: 10 }} /> : <Image source={require("../assets/true.png")} style={{ height: 20, width: 20, marginRight: 10 }} />}
-                    <Text>Flexy Standar</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={{ flexDirection: "row" }} onPress={() => {
-                    setPaper(prev => !prev)
-                    setBahan("Flexy Matte")
-                }}>
-                    {paper == false ? <Image source={require("../assets/false.png")} style={{ height: 20, width: 20, marginRight: 10 }} /> : <Image source={require("../assets/true.png")} style={{ height: 20, width: 20, marginRight: 10 }} />}
-                    <Text>Flexy Matte</Text>
-                </TouchableOpacity>
-            </View>
-            <View style={{ flexDirection: 'row', justifyContent: "space-between" }}>
                 <View style={{ margin: 10, marginLeft: 25 }}>
-                    <Text style={{ color: "#000", fontSize: 20, fontWeight: "bold" }}>Pilihan Size</Text>
+                    <Text style={{ color: "#000", fontSize: 20, fontWeight: "bold" }}>Pilihan Cetak Sisi</Text>
                     <TouchableOpacity style={{ flexDirection: "row" }} onPress={() => {
-                        setSize1(prev => !prev)
-                        setSize("80 x 20 cm")
+                        setMata(prev => !prev)
+                        setJenis("Print Outdor")
                     }}>
-                        {size1 == false ? <Image source={require("../assets/false.png")} style={{ height: 20, width: 20, marginRight: 10 }} /> : <Image source={require("../assets/true.png")} style={{ height: 20, width: 20, marginRight: 10 }} />}
-                        <Text>80 x 20 cm</Text>
+                        {mata == false ? <Image source={require("../assets/false.png")} style={{ height: 20, width: 20, marginRight: 10 }} /> : <Image source={require("../assets/true.png")} style={{ height: 20, width: 20, marginRight: 10 }} />}
+                        <Text>Print Outdor</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={{ flexDirection: "row" }} onPress={() => {
-                        setSize2(prev => !prev)
-                        setSize("150 x 300 cm")
+                        setJepit(prev => !prev)
+                        setJenis("Print Indoor")
                     }}>
-                        {size2 == false ? <Image source={require("../assets/false.png")} style={{ height: 20, width: 20, marginRight: 10 }} /> : <Image source={require("../assets/true.png")} style={{ height: 20, width: 20, marginRight: 10 }} />}
-                        <Text>150 x 300 cm</Text>
-                    </TouchableOpacity>
-                </View>
-                <View style={{ margin: 10, marginLeft: 25, marginRight: 50 }}>
-                    <Text style={{ color: "#000", fontSize: 20, fontWeight: "bold" }}>Jumlah Cetak</Text>
-                    <TouchableOpacity style={{ flexDirection: "row" }} onPress={() => {
-                        setPcs1(prev => !prev)
-                        setCount("1 Pcs")
-                    }}>
-                        {pcs1 == false ? <Image source={require("../assets/false.png")} style={{ height: 20, width: 20, marginRight: 10 }} /> : <Image source={require("../assets/true.png")} style={{ height: 20, width: 20, marginRight: 10 }} />}
-                        <Text>1 Pcs</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={{ flexDirection: "row" }} onPress={() => {
-                        setPcs2(prev => !prev)
-                        setCount("5 Pcs")
-                    }}>
-                        {pcs2 == false ? <Image source={require("../assets/false.png")} style={{ height: 20, width: 20, marginRight: 10 }} /> : <Image source={require("../assets/true.png")} style={{ height: 20, width: 20, marginRight: 10 }} />}
-                        <Text>5 Pcs</Text>
+                        {jepit == false ? <Image source={require("../assets/false.png")} style={{ height: 20, width: 20, marginRight: 10 }} /> : <Image source={require("../assets/true.png")} style={{ height: 20, width: 20, marginRight: 10 }} />}
+                        <Text>Print Indoor</Text>
                     </TouchableOpacity>
                 </View>
-            </View>
-            <View style={{ marginLeft: 16, marginTop: 15, }}>
-                <Text style={{ fontSize: 20, color: "#000", fontWeight: "bold" }}>Catatan:</Text>
-                <TextInput
-                    multiline={true}
-                    style={{ height: 100, width: "90%", borderWidth: 1 }}
-                    placeholder='Masukan catatan'
-                    textAlignVertical='top'
-                    onChangeText={(input) => setCatatan(input)}
-                />
-            </View>
+                <View style={{ margin: 10, marginLeft: 25 }}>
+                    <Text style={{ color: "#000", fontSize: 20, fontWeight: "bold" }}>Pilihan Bahan</Text>
+                    <TouchableOpacity style={{ flexDirection: "row" }} onPress={() => {
+                        setCarton(prev => !prev)
+                        setBahan("Flexy Standar")
+                    }}>
+                        {carton == false ? <Image source={require("../assets/false.png")} style={{ height: 20, width: 20, marginRight: 10 }} /> : <Image source={require("../assets/true.png")} style={{ height: 20, width: 20, marginRight: 10 }} />}
+                        <Text>Flexy Standar</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{ flexDirection: "row" }} onPress={() => {
+                        setPaper(prev => !prev)
+                        setBahan("Flexy Matte")
+                    }}>
+                        {paper == false ? <Image source={require("../assets/false.png")} style={{ height: 20, width: 20, marginRight: 10 }} /> : <Image source={require("../assets/true.png")} style={{ height: 20, width: 20, marginRight: 10 }} />}
+                        <Text>Flexy Matte</Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={{ flexDirection: 'row', justifyContent: "space-between" }}>
+                    <View style={{ margin: 10, marginLeft: 25 }}>
+                        <Text style={{ color: "#000", fontSize: 20, fontWeight: "bold" }}>Pilihan Size</Text>
+                        <TouchableOpacity style={{ flexDirection: "row" }} onPress={() => {
+                            setSize1(prev => !prev)
+                            setSize("80 x 20 cm")
+                        }}>
+                            {size1 == false ? <Image source={require("../assets/false.png")} style={{ height: 20, width: 20, marginRight: 10 }} /> : <Image source={require("../assets/true.png")} style={{ height: 20, width: 20, marginRight: 10 }} />}
+                            <Text>80 x 20 cm</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={{ flexDirection: "row" }} onPress={() => {
+                            setSize2(prev => !prev)
+                            setSize("150 x 300 cm")
+                        }}>
+                            {size2 == false ? <Image source={require("../assets/false.png")} style={{ height: 20, width: 20, marginRight: 10 }} /> : <Image source={require("../assets/true.png")} style={{ height: 20, width: 20, marginRight: 10 }} />}
+                            <Text>150 x 300 cm</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={{ margin: 10, marginLeft: 25, marginRight: 50 }}>
+                        <Text style={{ color: "#000", fontSize: 20, fontWeight: "bold" }}>Jumlah Cetak</Text>
+                        <TouchableOpacity style={{ flexDirection: "row" }} onPress={() => {
+                            setPcs1(prev => !prev)
+                            setCount("1 Pcs")
+                        }}>
+                            {pcs1 == false ? <Image source={require("../assets/false.png")} style={{ height: 20, width: 20, marginRight: 10 }} /> : <Image source={require("../assets/true.png")} style={{ height: 20, width: 20, marginRight: 10 }} />}
+                            <Text>1 Pcs</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={{ flexDirection: "row" }} onPress={() => {
+                            setPcs2(prev => !prev)
+                            setCount("5 Pcs")
+                        }}>
+                            {pcs2 == false ? <Image source={require("../assets/false.png")} style={{ height: 20, width: 20, marginRight: 10 }} /> : <Image source={require("../assets/true.png")} style={{ height: 20, width: 20, marginRight: 10 }} />}
+                            <Text>5 Pcs</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+                <View style={{ marginLeft: 16, marginTop: 15, }}>
+                    <Text style={{ fontSize: 20, color: "#000", fontWeight: "bold" }}>Catatan:</Text>
+                    <TextInput
+                        multiline={true}
+                        style={{ height: 100, width: "90%", borderWidth: 1 }}
+                        placeholder='Masukan catatan'
+                        textAlignVertical='top'
+                        onChangeText={(input) => setCatatan(input)}
+                    />
+                </View>
 
-            <View style={{ height: 200, width: "100%", flexDirection: "row", justifyContent: "space-around", marginTop: 25 }}>
-                <View style={{ height: 100, width: "50%", alignItems: "center", justifyContent: "center" }}>
-                    <Text style={{ color: "#000", fontSize: 15, fontWeight: "bold" }}>Upload Desain</Text>
-                    <TouchableOpacity>
+                <View style={{ height: 200, width: "100%", flexDirection: "row", justifyContent: "space-around", marginTop: 25 }}>
+                    <View style={{ height: 100, width: "50%", alignItems: "center", justifyContent: "center" }}>
+                        <Text style={{ color: "#000", fontSize: 15, fontWeight: "bold" }}>Upload Desain</Text>
+                        <TouchableOpacity onPress={() => requestCameraPermission()} >
+                            <Image
+                                source={require("../assets/add_image.png")}
+                                style={{ height: 70, width: 70 }}
+                            />
+                        </TouchableOpacity>
+                    </View>
+                    <View style={{ height: 100, width: "50%", alignItems: "center", marginTop: 10 }}>
+                        <Text style={{ color: "#000", fontSize: 15, fontWeight: "bold", }}>Total Harga</Text>
+                        <Text style={{ paddingTop: 20, color: "#000", fontWeight: "bold", fontSize: 20 }} >Rp {total}</Text>
+                    </View>
+                </View>
+                <View style={{ height: 200, width: '100%', alignItems: "center", justifyContent: "center" }}>
+                    {image.length == 0 ?
+                        null :
                         <Image
-                            source={require("../assets/add_image.png")}
-                            style={{ height: 70, width: 70 }}
+                            source={{ uri: image }}
+                            style={{ height: "100%", width: "100%", resizeMode: "contain" }}
                         />
-                    </TouchableOpacity>
+                    }
                 </View>
-                <View style={{ height: 100, width: "50%", alignItems: "center", marginTop: 10 }}>
-                    <Text style={{ color: "#000", fontSize: 15, fontWeight: "bold", }}>Total Harga</Text>
-                    <Text style={{ paddingTop: 20, color: "#000", fontWeight: "bold", fontSize: 20 }} >Rp {total}</Text>
-                </View>
-            </View>
-            <TouchableOpacity onPress={() => createPesanan()} style={{ height: 50, width: "50%", backgroundColor: "#2F632C", alignItems: "center", justifyContent: "center", borderRadius: 25, marginTop: 20, position: "absolute", bottom: 10, right: 10 }}>
-                <Text style={{ color: "white", fontWeight: "bold", fontSize: 20, textAlign: "center" }} >Buat Pesanan </Text>
-            </TouchableOpacity>
+                <TouchableOpacity onPress={() => createPesanan()} style={{ height: 50, width: "50%", backgroundColor: "#2F632C", alignItems: "center", justifyContent: "center", borderRadius: 25, marginTop: 20, position: "absolute", bottom: 10, right: 10 }}>
+                    <Text style={{ color: "white", fontWeight: "bold", fontSize: 20, textAlign: "center" }} >Buat Pesanan </Text>
+                </TouchableOpacity>
             </ImageBackground>
         </View>
     );

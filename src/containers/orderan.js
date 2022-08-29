@@ -29,7 +29,7 @@ const Orderan = ({ navigation }) => {
         return orderan.map((value, index) => {
             return (
                 <View key={index} style={{
-                    height: 250, width: "90%", borderBottomWidth: 1, borderBottomColor: "#aeaeae", shadowColor: "#000",
+                    height: 500, width: "90%", borderBottomWidth: 1, borderBottomColor: "#aeaeae", shadowColor: "#000",
                     shadowOffset: {
                         width: 0,
                         height: 1,
@@ -39,15 +39,19 @@ const Orderan = ({ navigation }) => {
 
                     elevation: 1,
                     padding: 10,
-                    marginBottom:10
+                    marginBottom: 10
                 }}>
                     <Text style={{ color: "#000", fontSize: 30, fontWeight: "bold" }}>{value.nama}</Text>
                     <Text style={{ color: "#000", fontSize: 20, marginBottom: 5 }} >{value.jenis}</Text>
                     <Text style={{ color: "#000", fontSize: 20, marginBottom: 5 }}>{value.bahan}</Text>
                     <Text style={{ color: "#000", fontSize: 20, marginBottom: 5 }}>{value.size}</Text>
                     <Text style={{ color: "#000", fontSize: 20, marginBottom: 5 }}>{value.jumlah}</Text>
-                    <Text style={{ color: "#000", fontSize: 25, marginBottom: 5, color:"red"}}>Rp. {value.harga}</Text>
+                    <Text style={{ color: "#000", fontSize: 25, marginBottom: 5, color: "red" }}>Rp. {value.harga}</Text>
                     <Text style={{ color: "#000", fontSize: 20, marginBottom: 5 }}>{value.catatan}</Text>
+                    <Image
+                        source={{ uri: `${value.image}` }}
+                        style={{ height: 200, width: 200, resizeMode:"contain"}}
+                    />
                 </View>
             )
         })

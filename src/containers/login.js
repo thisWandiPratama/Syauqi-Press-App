@@ -22,7 +22,7 @@ const Login = ({ navigation }) => {
         getData()
     }, [])
 
-    const getData =async () => {
+    const getData = async () => {
         const jsonValue = await AsyncStorage.getItem('@users')
         if (jsonValue == null) {
             const jsonValue = JSON.stringify(users)
@@ -67,7 +67,7 @@ const Login = ({ navigation }) => {
                     resizeMode: "contain"
                 }}
             />
-            <View style={{ height: 200, width: "90%" }}>
+            <View style={{ height: 100, width: "90%" }}>
                 <Text style={{ color: "#000", fontSize: 30, fontWeight: "bold" }}>Sign In</Text>
                 <View style={{ height: 70, width: "100%", borderBottomColor: "#aeaeae", borderBottomWidth: 1, marginTop: 5 }}>
                     <Text style={{ color: "#000", fontSize: 18 }}>Username</Text>
@@ -83,14 +83,14 @@ const Login = ({ navigation }) => {
                         placeholder='Masukan password'
                     />
                 </View>
-            </View>
-            <View style={{ width: "90%", alignItems: "center", marginTop: 200 }}>
-                <TouchableOpacity onPress={() => login()} style={{ height: 50, width: "80%", backgroundColor: "red", alignItems: "center", justifyContent: "center", borderRadius: 25, marginTop: 20 }}>
-                    <Text style={{ color: "white", fontWeight: "bold", fontSize: 20 }} >MASUK </Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate("Register")} style={{ height: 50, width: "80%", backgroundColor: "#2F632C", alignItems: "center", justifyContent: "center", borderRadius: 25, marginTop: 20 }}>
-                    <Text style={{ color: "white", fontWeight: "bold", fontSize: 20 }} >BUAT AKUN </Text>
-                </TouchableOpacity>
+                <View style={{ width: "100%", alignItems: "center", height: 200 }}>
+                    <TouchableOpacity onPress={() => login()} style={{ height: 50, width: "80%", backgroundColor: "red", alignItems: "center", justifyContent: "center", borderRadius: 25, marginTop: 20 }}>
+                        <Text style={{ color: "white", fontWeight: "bold", fontSize: 20 }} >MASUK </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => navigation.navigate("Register")} style={{ height: 50, width: "80%", backgroundColor: "#2F632C", alignItems: "center", justifyContent: "center", borderRadius: 25, marginTop: 20 }}>
+                        <Text style={{ color: "white", fontWeight: "bold", fontSize: 20 }} >BUAT AKUN </Text>
+                    </TouchableOpacity>
+                </View>
             </View>
         </View>
     );

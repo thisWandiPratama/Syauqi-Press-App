@@ -1,6 +1,7 @@
 //import liraries
 import React, { Component, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, ImageBackground} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, ImageBackground,PermissionsAndroid} from 'react-native';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker'; // Migration from 2.x.x to 3.x.x => showImagePicker API is removed.
 
 // create a component
 const Product4 = ({ navigation }) => {
@@ -48,6 +49,63 @@ const Product4 = ({ navigation }) => {
             
         }
     }
+    const selectPhotoTapped = () => {
+        var options = {
+            title: 'Select Image',
+            customButtons: [
+                {
+                    name: 'customOptionKey',
+                    title: 'Choose Photo from Custom Option'
+                },
+            ],
+            storageOptions: {
+                skipBackup: true,
+                path: 'images',
+            },
+        };
+
+        launchImageLibrary(options, (response) => { // Use launchImageLibrary to open image gallery
+            console.log('Response = ', response);
+
+            if (response.didCancel) {
+                console.log('User cancelled image picker');
+            } else if (response.error) {
+                console.log('ImagePicker Error: ', response.error);
+            } else if (response.customButton) {
+                console.log('User tapped custom button: ', response.customButton);
+            } else {
+                const source = { uri: response.assets[0].uri };
+
+                // You can also display the image using data:
+                // const source = { uri: 'data:image/jpeg;base64,' + response.data };
+                setImage(source.uri)
+            }
+        });
+    }
+
+    const requestCameraPermission = async () => {
+        try {
+            const granted = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.CAMERA,
+                {
+                    title: "App Camera Permission",
+                    message: "App needs access to your camera ",
+                    buttonNeutral: "Ask Me Later",
+                    buttonNegative: "Cancel",
+                    buttonPositive: "OK"
+                }
+            );
+            if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                console.log("Camera permission given");
+                selectPhotoTapped()
+            } else {
+                console.log("Camera permission denied");
+            }
+        } catch (err) {
+            console.warn(err);
+        }
+    };
+
 
     return (
         <View style={styles.container}>
@@ -156,7 +214,7 @@ const Product4 = ({ navigation }) => {
             <View style={{ height: 200, width: "100%", flexDirection: "row", justifyContent: "space-around", marginTop: 25 }}>
                 <View style={{ height: 100, width: "50%", alignItems: "center", justifyContent: "center" }}>
                     <Text style={{ color: "#000", fontSize: 15, fontWeight: "bold" }}>Upload Desain</Text>
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={() => requestCameraPermission()} >
                         <Image
                             source={require("../assets/add_image.png")}
                             style={{ height: 70, width: 70 }}
@@ -168,6 +226,15 @@ const Product4 = ({ navigation }) => {
                     <Text style={{ paddingTop: 20, color: "#000", fontWeight: "bold", fontSize: 20 }} >Rp {total}</Text>
                 </View>
             </View>
+            <View style={{ height: 200, width: '100%', alignItems: "center", justifyContent: "center" }}>
+                    {image.length == 0 ?
+                        null :
+                        <Image
+                            source={{ uri: image }}
+                            style={{ height: "100%", width: "100%", resizeMode: "contain" }}
+                        />
+                    }
+                </View>
             <TouchableOpacity onPress={() => createPesanan()} style={{ height: 50, width: "50%", backgroundColor: "#2F632C", alignItems: "center", justifyContent: "center", borderRadius: 25, marginTop: 20, position: "absolute", bottom: 10, right: 10 }}>
                 <Text style={{ color: "white", fontWeight: "bold", fontSize: 20, textAlign: "center" }} >Buat Pesanan </Text>
             </TouchableOpacity>
